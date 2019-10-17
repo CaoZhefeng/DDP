@@ -20,7 +20,7 @@ N=200;
 n = 2;  % state
 m = 1;  % control
 % interval
-dt=0.01;
+dt=0.001;
 
 
 % initial
@@ -112,10 +112,10 @@ while 1
     end
     
     itr=itr+1;
-    cost(itr)=sum(u.*u*Ru-v.*v*Rv)*dt+x(:,N)'*Q*x(:,N)
+    cost(itr)=sum(u.*u*Ru-v.*v*Rv)*dt+x(:,N)'*Q*x(:,N);
     
     max(abs(du))+max(abs(dv))
-    if max(abs(du))+max(abs(dv))< 1e-5
+    if max(abs(du))+max(abs(dv))< 1e-4
 %     if itr>=20
         break;
     end
@@ -126,7 +126,6 @@ end
 fprintf(['\n'...
     'iterative   times:   %d\n'],...
     itr);
-fprintf('terminal parameter:   %.4f\n', lmd);
 fprintf('optimal trajectory:   %.4f\n', x(:,N));
 % fprintf('optimal u:   %.4f\n', u);
 fprintf(['\n'...
