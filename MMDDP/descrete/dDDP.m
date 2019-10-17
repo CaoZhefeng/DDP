@@ -15,7 +15,7 @@ Q=diag([1 0.1]);
 Ru=0.01;
 Rv=0.8;
 % time horizon N
-N=200;
+N=100;
 % dimenison
 n = 2;  % state
 m = 1;  % control
@@ -38,14 +38,16 @@ itr=0;
 
 fprintf('\n=========== begin Min-Max DDP ===========\n');
 while 1
-    V_x(:,N)=2*Q*x(:,N);
-    V_xx(:,:,N)=2*Q;
+%     V_x(:,N)=2*Q*x(:,N);
+%     V_xx(:,:,N)=2*Q;
+    V_x(:,N)=zeros(2,1);
+    V_xx(:,:,N)=zeros(2,2);
     
     for i=N-1:-1:1
-        c_x=0;
+        c_x=2*Q*x(:,i)*dt;
         c_u=2*u(:,i)*Ru*dt;
         c_v=-2*v(:,i)*Rv*dt;
-        c_xx=0;
+        c_xx=2*Q*dt;
         c_uu=2*eye(m)*Ru*dt;
         c_vv=-2*eye(m)*Rv*dt;
         c_ux=0;
@@ -86,10 +88,12 @@ while 1
     
     itr=itr+1;
     cost(itr)=sum(u.*u*Ru-v.*v*Rv)*dt+x(:,N)'*Q*x(:,N);
-    
+    for i=1:N-1
+        cost(itr)=cost(itr)+x(:,i)'*Q*x(:,i)*dt;
+    end
     max(abs(du))+max(abs(dv))
-    if max(abs(du))+max(abs(dv))< 1e-4
-%     if itr>=20
+%     if max(abs(du))+max(abs(dv))< 1e-4
+    if itr>=20
         break;
     end
 
@@ -108,20 +112,21 @@ fprintf(['\n'...
 
 % control sequence
 figure(1);
-hold on;
+subplot(1,2,1)
 % for i=1:N
 %   mean_true(i)=sum(x_true(i,:))/SAM;
 %   cov_true(i)=sum((x_true(i,:)-mean_true(i)*ones(1,SAM)).^2)/SAM;
 % end
-plot(0:dt:dt*(N-2),v(1,:),'b','linewidth',2);
 plot(0:dt:dt*(N-2),u(1,:),'g','linewidth',2);
-
-title('Control sequence');
+title('Control sequence of u');
 xlabel('Time in sec');
-legend('v','u');
-hold off;
-
-% Cost
+ylabel('u');
+subplot(1,2,2)
+plot(0:dt:dt*(N-2),v(1,:),'b','linewidth',2);
+title('Control sequence of v');
+xlabel('Time in sec');
+ylabel('v');
+% Cost u
 figure(2);
 plot(1:itr,cost,'r','linewidth',2);
 title('Cost');
@@ -129,6 +134,6 @@ xlabel('Iteration');
 
 % state trajectory
 figure(3)
-plot(x(1,:),x(2,:),'r','linewidth',2);
+plot(0:dt:dt*(N-1),x(1,:),0:dt:dt*(N-1),x(2,:),'linewidth',2);
 title('state trajectory');
 end
