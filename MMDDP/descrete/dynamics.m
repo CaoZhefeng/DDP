@@ -20,7 +20,7 @@ if index==0
     for i=1:N-1
         xnew(:,i+1)=xnew(:,i)+dt*[xnew(2,i); 9.81*2*sin(xnew(1,i))-0.4*xnew(2,i)+4*u(1,i)+4*v(1,i)];
         fx(:,:,i+1)=[0, 1;...
-            9.81*2*cos(xnew(1,i)), -0.4]*dt+eye(n);
+            9.81*2*cos(xnew(1,i+1)), -0.4]*dt+eye(n);
         fu(:,:,i+1)=[0;4]*dt;
         fv(:,:,i+1)=[0;4]*dt;
     end

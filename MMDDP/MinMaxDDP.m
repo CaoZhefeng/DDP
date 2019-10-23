@@ -15,12 +15,12 @@ Q=diag([1 0.1]);
 Ru=0.01;
 Rv=1;
 % time horizon N
-N=200;
+N=100;
 % dimenison
 n = 2;  % state
 m = 1;  % control
 % interval
-dt=0.001;
+dt=0.01;
 
 
 % initial
@@ -38,14 +38,15 @@ itr=0;
 
 fprintf('\n=========== begin Min-Max DDP ===========\n');
 while 1
-    V_x(:,N)=2*Q*x(:,N);
-    V_xx(:,:,N)=2*Q;
-    
+%     V_x(:,N)=2*Q*x(:,N);
+%     V_xx(:,:,N)=2*Q;
+    V_x(:,N)=zeros(2,1);
+    V_xx(:,:,N)=zeros(2,2);
     for i=N:-1:2
-        c_x=0;
+        c_x=2*Q*x(:,i);
         c_u=2*u(:,i)*Ru;
         c_v=-2*v(:,i)*Rv;
-        c_xx=0;
+        c_xx=2*Q;
         c_uu=2*eye(m)*Ru;
         c_vv=-2*eye(m)*Rv;
         c_ux=0;
@@ -112,7 +113,7 @@ while 1
     end
     
     itr=itr+1;
-    cost(itr)=sum(u.*u*Ru-v.*v*Rv)*dt+x(:,N)'*Q*x(:,N);
+%     cost(itr)=sum(u.*u*Ru-v.*v*Rv)*dt+x(:,N)'*Q*x(:,N);
     
     max(abs(du))+max(abs(dv))
     if max(abs(du))+max(abs(dv))< 1e-4

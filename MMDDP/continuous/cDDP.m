@@ -6,7 +6,7 @@ function cDDP
 % deterministic
 % continuous case
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% J= u_syms^2-v_syms^2;
+% J= u^2-v^2+x^2;
 % Phi=(x_syms^2);
 % goal state: x_expected = [0,0]';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -15,63 +15,62 @@ Q=diag([1 0.1]);
 Ru=0.01;
 
 % time horizon N
-N=200;
+N=100;
 % dimenison
 n = 2;  % state
 m = 1;  % control
 % interval
 dt=0.01;
 
-
 % initial
-u0=zeros(m,N);
-u=u0;
+u=zeros(m,N);
 x=zeros(n,N);x(:,1)=[pi,0]';
-
+dx=zeros(n,N);dx(:,1)=[0;0];
 gamma=0.8;
 itr=0;
 
-% initial trajectory
-[x,dx,fx,fu]=dynamics(x,u,0,dt);
 
 fprintf('\n=========== begin Min-Max DDP ===========\n');
-while 1
+while(1)
+    %%%% initial trajectory %%%%%
+    [x, fx, fu]=dynamics(x,u,dt);
+    % tspan = [0 1];
+    % x0=[pi;0];
+    % [xt,x] = ode45(@(t,x) dynamics(t,x,ut,u), tspan, x0);
+    % for i=1:size(xt)
+    %     fx(:,:,i)=[0, 1;...
+    %             9.81*2*cos(x(i,1)), -0.4];
+    % end
+
+    % calculate value function at final time
     V_x(:,N)=2*Q*x(:,N);
     V_xx(:,:,N)=2*Q;
-    
+
     for i=N-1:-1:1
-        c_x=0;
-        c_u=2*u(:,i)*Ru*dt;
-        c_xx=0;
-        c_uu=2*eye(m)*Ru*dt;
-        c_ux=0;
-        
-        Q_x(:,i)=c_x+fx(:,:,i)'*V_x(:,i+1);
-        Q_u(:,i)=c_u+fu(:,:,i)'*V_x(:,i+1);
-        Q_xx(:,:,i)=c_xx+fx(:,:,i)'*V_xx(:,:,i+1)+V_xx(:,:,i+1)*fx(:,:,i);
-        Q_uu(:,:,i)=c_uu;
-        Q_ux(:,:,i)=c_ux+fu(:,:,i)'*V_xx(:,:,i+1);
-        Q_xu(:,:,i)=Q_ux(:,:,i)';
-        
+        % Q_x\ Q_xx change here
+        V_x(:,i)=V_x(:,i+1)+dt*(2*Q*x(:,i+1)+fx(:,:,i+1)'*V_x(:,i+1)-V_xx(:,:,i+1)'*fu(:,:,i+1)*(2*Ru*u(:,i)+fu(:,:,i+1)'*V_x(:,i+1))/(2*Ru));
+        V_xx(:,:,i)=V_xx(:,:,i+1)+dt*(2*Q+V_xx(:,:,i+1)*fx(:,:,i+1)+fx(:,:,i+1)'*V_xx(:,:,i+1)-V_xx(:,:,i+1)'*fu(:,:,i+1)*fu(:,:,i+1)'*V_xx(:,:,i+1)/(2*Ru));
+
+        Q_u(:,i)=2*u(:,i)*Ru+fu(:,:,i)'*V_x(:,i);
+        Q_uu(:,:,i)=2*eye(m)*Ru;
+        Q_ux(:,:,i)=fu(:,:,i)'*V_xx(:,:,i+1);
         lu(:,i)=-Q_u(:,i)/Q_uu(:,:,i);
-        Ku(:,:,i)=-Q_ux(:,:,i)/Q_uu(:,:,i);
-        
-        V_x(:,i)=V_x(:,i+1)+dt*(Q_x(:,i)+Ku(:,:,i)'*Q_u(:,i)+Q_ux(:,:,i)'*lu(:,i)+Ku(:,:,i)'*Q_uu(:,:,i)*lu(:,i));
-        V_xx(:,:,i)=V_xx(:,:,i+1)+dt*(Q_xx(:,:,i)+Ku(:,:,i)'*Q_ux(:,:,i)+Q_ux(:,:,i)'*Ku(:,:,i)+Ku(:,:,i)'*Q_uu(:,:,i)*Ku(:,:,i));
+        Ku(:,:,i)=-Q_ux(:,:,i)/Q_uu(:,:,i); 
     end
-    
+
     for i=1:N-1
-        du(:,i)=lu(:,i)+ Ku(:,:,i)*dx(:,i);
-        u(:,i)=gamma*du(:,i)+u(:,i);
-        [x(:,i+1),dx(:,i+1),fx(:,:,i+1),fu(:,:,i+1)]=dynamics(x,u,i,dt);
+        dx(:,i+1)=dx(:,i)+dt*(fu(:,:,i)*lu(:,i)+(fx(:,:,i)+fu(:,:,i)*Ku(:,:,i))*dx(:,i));
+        du(:,i)=lu(:,i)+Ku(:,:,i)*dx(:,i);
     end
-    
+    du(:,N)=0;
+    u=u+du*gamma;
+
     itr=itr+1;
-    cost(itr)=sum(u.*u*Ru)*dt+x(:,N)'*Q*x(:,N)
-    
+%     cost(itr)=sum(u.*u*Ru)*dt+x(:,N)'*Q*x(:,N);
+
     max(abs(du))
     if max(abs(du))< 1e-5
-%     if itr>=20
+    %     if itr>=20
         break;
     end
 
@@ -86,25 +85,25 @@ fprintf('optimal trajectory:   %.4f\n', x(:,N));
 fprintf(['\n'...
     '=========== end BSDDP ===========\n']);
 
-%% Plot
-
-% control sequence
-figure(1);
-hold on;
-% for i=1:N
-%   mean_true(i)=sum(x_true(i,:))/SAM;
-%   cov_true(i)=sum((x_true(i,:)-mean_true(i)*ones(1,SAM)).^2)/SAM;
+% %% Plot
+% 
+% % control sequence
+% figure(1);
+% hold on;
+% % for i=1:N
+% %   mean_true(i)=sum(x_true(i,:))/SAM;
+% %   cov_true(i)=sum((x_true(i,:)-mean_true(i)*ones(1,SAM)).^2)/SAM;
+% % end
+% plot(0:dt:dt*(N-2),v(1,:),'b','linewidth',2);
+% plot(0:dt:dt*(N-2),u(1,:),'g','linewidth',2);
+% 
+% title('Control sequence');
+% xlabel('Time in sec');
+% hold off;
+% 
+% % Cost
+% figure(2);
+% plot(1:itr,cost,'r','linewidth',2);
+% title('Control sequence');
+% xlabel('Iteration');
 % end
-plot(0:dt:dt*(N-2),v(1,:),'b','linewidth',2);
-plot(0:dt:dt*(N-2),u(1,:),'g','linewidth',2);
-
-title('Control sequence');
-xlabel('Time in sec');
-hold off;
-
-% Cost
-figure(2);
-plot(1:itr,cost,'r','linewidth',2);
-title('Control sequence');
-xlabel('Iteration');
-end
