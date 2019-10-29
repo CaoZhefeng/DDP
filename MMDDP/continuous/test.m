@@ -1,9 +1,5 @@
-N=50000;
-y=zeros(2,N);
-y(:,N)=[1.1089;1.6923];
-dt=0.0001;
-for i=N-1:-1:1
-   y(:,i)=y(:,i+1)-[0, 1;0.5*dt*(i+1), 0]*y(:,i+1)*dt;
-end
-
-plot(dt:dt:dt*N,y(1,:));
+A = 1;
+B = 2;
+tspan = [0 5];
+y0 = [0 0.01];
+[t,y] = ode45(@(t,y) odefcn(t,y,A,B), tspan, y0);

@@ -36,13 +36,8 @@ fprintf('\n=========== begin Min-Max DDP ===========\n');
 while(1)
     %%%% initial trajectory %%%%%
     [x, fx, fu, fv]=dynamics(x,u,v,dt);
-    % tspan = [0 1];
-    % x0=[pi;0];
-    % [xt,x] = ode45(@(t,x) dynamics(t,x,ut,u), tspan, x0);
-    % for i=1:size(xt)
-    %     fx(:,:,i)=[0, 1;...
-    %             9.81*2*cos(x(i,1)), -0.4];
-    % end
+%     % debug
+% plot(0:dt:dt*(N-1),x(1,:),0:dt:dt*(N-1),x(2,:),'linewidth',2);
 
     % calculate value function at final time
 %     V_x(:,N)=2*Q*x(:,N);
@@ -67,21 +62,28 @@ while(1)
         Kv(:,:,i)=-Q_vx(:,:,i)/Q_vv(:,:,i); 
     end
 
+%     % debug
+%     plot(dt:dt:dt*N,reshape(V_x(1,:),[1,N]),dt:dt:dt*N,reshape(V_x(2,:),[1,N]),'linewidth',2);
     for i=1:N-1
         dx(:,i+1)=dx(:,i)+dt*(fu(:,:,i)*lu(:,i)+fv(:,:,i)*lv(:,i)+(fx(:,:,i)+fu(:,:,i)*Ku(:,:,i)+fv(:,:,i)*Kv(:,:,i))*dx(:,i));
         du(:,i)=lu(:,i)+Ku(:,:,i)*dx(:,i);
         dv(:,i)=lv(:,i)+Kv(:,:,i)*dx(:,i);
     end
+    
+%     % debug
+%     plot(dt:dt:dt*N,dx(1,:),dt:dt:dt*N,dx(2,:),'linewidth',2);
     du(:,N)=0;
     dv(:,N)=0;
+%     % debug
+%     plot(0:dt:dt*(N-2),du(1,1:N-1),0:dt:dt*(N-2),dv(1,1:N-1),'linewidth',2);
     u=u+du*gamma;
     v=v+dv*gamma;
 
     itr=itr+1;
 %     cost(itr)=sum(u.*u*Ru)*dt+x(:,N)'*Q*x(:,N);
 
-    if max(abs(du))+ max(abs(dv))< 1e-5
-    %     if itr>=20
+%     if max(abs(du))+ max(abs(dv))< 1e-5
+    if itr>=20
         break;
     end
 
@@ -99,7 +101,7 @@ fprintf(['\n'...
 % %% Plot
 % control sequence
 figure(1);
-plot(0:dt:dt*(N-1),u(1,:),0:dt:dt*(N-1),v(1,:),'linewidth',2);
+plot(0:dt:dt*(N-2),u(1,1:N-1),0:dt:dt*(N-2),v(1,1:N-1),'linewidth',2);
 title('Control sequence');
 xlabel('Time in sec');
 ylabel('u');
