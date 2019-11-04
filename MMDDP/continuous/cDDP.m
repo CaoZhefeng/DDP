@@ -1,13 +1,13 @@
 function cDDP
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % numerical
-% high-dimension
-% with terminal constraint
-% deterministic
-% continuous case
+% pendulum
+% deterministic\continuous case
+% Ruler method
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% J= u^2-v^2+x^2;
+% J= x^2+u^2-v^2+x^2;
 % Phi=(x_syms^2);
+% initial state: x0 = [pi,0]';
 % goal state: x_expected = [0,0]';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % cost parameter
@@ -40,10 +40,10 @@ while(1)
 % plot(0:dt:dt*(N-1),x(1,:),0:dt:dt*(N-1),x(2,:),'linewidth',2);
 
     % calculate value function at final time
-%     V_x(:,N)=2*Q*x(:,N);
-%     V_xx(:,:,N)=2*Q;
     V_x(:,N)=2*Q*x(:,N);
     V_xx(:,:,N)=2*Q;
+%     V_x(:,N)=zeros(2,1);
+%     V_xx(:,:,N)=zeros(2,2);
 
     for i=N-1:-1:1
         % Q_x\ Q_xx change here
@@ -82,8 +82,8 @@ while(1)
     itr=itr+1;
 %     cost(itr)=sum(u.*u*Ru)*dt+x(:,N)'*Q*x(:,N);
 
-%     if max(abs(du))+ max(abs(dv))< 1e-5
-    if itr>=20
+    if max(abs(du))+ max(abs(dv))< 1e-2
+%     if itr>=20
         break;
     end
 
@@ -107,8 +107,9 @@ xlabel('Time in sec');
 ylabel('u');
 
 % state trajectory
-figure(3)
-plot(0:dt:dt*(N-1),x(1,:),0:dt:dt*(N-1),x(2,:),'linewidth',2);
+figure(2)
+% plot(0:dt:dt*(N-1),x(1,:),0:dt:dt*(N-1),x(2,:),'linewidth',2);
+plot(x(1,:),x(2,:),'linewidth',2);
 title('state trajectory');
 
 end

@@ -38,10 +38,10 @@ itr=0;
 
 fprintf('\n=========== begin Min-Max DDP ===========\n');
 while 1
-%     V_x(:,N)=2*Q*x(:,N);
-%     V_xx(:,:,N)=2*Q;
-    V_x(:,N)=zeros(2,1);
-    V_xx(:,:,N)=zeros(2,2);
+    V_x(:,N)=2*Q*x(:,N);
+    V_xx(:,:,N)=2*Q;
+%     V_x(:,N)=zeros(2,1);
+%     V_xx(:,:,N)=zeros(2,2);
     
     for i=N-1:-1:1
         c_x=2*Q*x(:,i)*dt;
@@ -91,9 +91,9 @@ while 1
     for i=1:N-1
         cost(itr)=cost(itr)+x(:,i)'*Q*x(:,i)*dt;
     end
-    max(abs(du))+max(abs(dv))
-%     if max(abs(du))+max(abs(dv))< 1e-4
-    if itr>=20
+%     max(abs(du))+max(abs(dv))
+    if max(abs(du))+max(abs(dv))< 1e-2
+%     if itr>=20
         break;
     end
 
