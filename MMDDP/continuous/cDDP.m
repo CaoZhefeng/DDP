@@ -16,7 +16,7 @@ Ru=0.01;
 Rv=1;
 
 % time horizon N
-N=1000;
+N=2000;
 % dimenison
 n = 2;  % state
 m = 1;  % control

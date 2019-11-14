@@ -16,7 +16,7 @@ function SDDP
 Q=diag([1 0.1]);
 Ru=0.01;
 Rv=1;
-alpha=0.04; % noise
+alpha=0.1; % noise
 N=100; % time horizon N
 n = 2;  % state dimenison
 m = 1;  % control dimenison

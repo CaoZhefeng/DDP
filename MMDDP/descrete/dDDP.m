@@ -15,7 +15,7 @@ Q=diag([1 0.1]);
 Ru=0.01;
 Rv=0.8;
 % time horizon N
-N=100;
+N=200;
 % dimenison
 n = 2;  % state
 m = 1;  % control
@@ -44,10 +44,12 @@ while 1
 %     V_xx(:,:,N)=zeros(2,2);
     
     for i=N-1:-1:1
-        c_x=2*Q*x(:,i)*dt;
+%         c_x=2*Q*x(:,i)*dt;
+        c_x=0;
         c_u=2*u(:,i)*Ru*dt;
         c_v=-2*v(:,i)*Rv*dt;
-        c_xx=2*Q*dt;
+%         c_xx=2*Q*dt;
+        c_xx=0;
         c_uu=2*eye(m)*Ru*dt;
         c_vv=-2*eye(m)*Rv*dt;
         c_ux=0;
@@ -132,8 +134,9 @@ plot(1:itr,cost,'r','linewidth',2);
 title('Cost');
 xlabel('Iteration');
 
-% state trajectory
+% state trajectory£»
 figure(3)
-plot(0:dt:dt*(N-1),x(1,:),0:dt:dt*(N-1),x(2,:),'linewidth',2);
+% plot(0:dt:dt*(N-1),x(1,:),0:dt:dt*(N-1),x(2,:),'linewidth',2);
+plot(x(1,:),x(2,:),'linewidth',2);
 title('state trajectory');
 end

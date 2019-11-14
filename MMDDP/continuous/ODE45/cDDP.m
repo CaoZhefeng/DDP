@@ -16,7 +16,7 @@ function cDDP
 Q=diag([1 0.1]);
 Ru=0.01;
 Rv=1;
-N=300; % time horizon N
+N=100; % time horizon N
 n = 2;  % state dimenison
 m = 1;  % control dimenison
 dt=0.01; % interval
@@ -82,23 +82,23 @@ fprintf('optimal trajectory:   %.4f\n', x(:,N+1));
 fprintf(['\n'...
     '=========== end Min-Max DDP ===========\n']);
 
-% %% Stochastic test sample
-% figure(3);
-% hold on;
-% alpha=0.1;
-% for sample=1:10
-%     x_true(:,1)=[pi;0];
-%     for i=1:N
-%         dx=x_true(:,i)-x(:,i);
-%         du(:,i)=lu(i)+Ku(:,:,i)*dx;
-%         dv(:,i)=lv(i)+Kv(:,:,i)*dx;
-% 
-%         u_true(:,i)=u(:,i)+du(:,i)*gamma;
-%         v_true(:,i)=v(:,i)+dv(:,i)*gamma;
-%         x_true(:,i+1)=x_true(:,i)+dt*[x_true(2,i); 9.81*2*sin(x_true(1,i))-0.4*x_true(2,i)+4*u_true(1,i)+4*v_true(1,i)]+[0; alpha* u_true(1,i)]*0.1*randn;
-%     end
-%     plot(x_true(1,:),x_true(2,:),'linewidth',2);
-% end
+%% Stochastic test sample
+figure(3);
+hold on;
+alpha=0.1;
+for sample=1:10
+    x_true(:,1)=[pi;0];
+    for i=1:N
+        dx=x_true(:,i)-x(:,i);
+        du(:,i)=lu(i)+Ku(:,:,i)*dx;
+        dv(:,i)=lv(i)+Kv(:,:,i)*dx;
+
+        u_true(:,i)=u(:,i)+du(:,i)*gamma;
+        v_true(:,i)=v(:,i)+dv(:,i)*gamma;
+        x_true(:,i+1)=x_true(:,i)+dt*[x_true(2,i); 9.81*2*sin(x_true(1,i))-0.4*x_true(2,i)+4*u_true(1,i)+4*v_true(1,i)]+[0; alpha* u_true(1,i)]*0.1*randn;
+    end
+    plot(x_true(1,:),x_true(2,:),'linewidth',2);
+end
 % %% Stochastic test sample without feedback control
 % figure(3);
 % hold on;
