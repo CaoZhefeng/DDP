@@ -15,8 +15,8 @@ for i=1:N
                                          0,                                         0;...
            -1/(l^2*m*(cos(x(1) - x(2))^2 - 2)), cos(x(1) - x(2))/(l^2*m*(cos(x(1) - x(2))^2 - 2));...
  cos(x(1) - x(2))/(l^2*m*(cos(x(1) - x(2))^2 - 2)),           -2/(l^2*m*(cos(x(1) - x(2))^2 - 2))];
-    F=[0;0;alpha*u(1,i);alpha*u(2,i)];
-    F_u=[0, 0;0, 0;alpha, 0;0, alpha];
+    F=[0;0;alpha*u(1,i)^2;alpha*u(2,i)^2];
+    F_u=[0, 0;0, 0;alpha*2*u(1,i), 0;0, alpha*2*u(2,i)];
     F_v=zeros(4,2);
     
     Q_u=2*Ru*u(:,i)+fu'*V_x(:,i)+F_u'*V_xx(:,:,i)*F*1;

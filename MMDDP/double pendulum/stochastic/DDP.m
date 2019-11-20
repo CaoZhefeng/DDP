@@ -21,7 +21,7 @@ n = 4;  % state dimenison
 m = 2;  % control dimenison
 dt=0.01; % interval
 gamma=0.8;
-alpha=0.4;
+alpha=0.05;
 
 % initialize control sequence
 time=0:dt:N*dt;
@@ -94,12 +94,12 @@ fprintf(['\n'...
     '=========== end Min-Max DDP ===========\n']);
 
 %% Stochastic test sample
-% figure(4);
-% hold on;
+figure(4);
+hold on;
 m=1;
 l=0.5;
 g=9.81;
-for k=1:50
+for k=1:1
     x_true(:,1)=[pi;pi;0;0];
     cost_sam(k)=0;
     for i=1:N
@@ -112,11 +112,11 @@ for k=1:50
         x_true(:,i+1)=x_true(:,i)+dt*[x_true(3,i);x_true(4,i);...
         (((u_true(1,i)+v_true(1,i))-(u_true(2,i)+v_true(2,i))*cos(x_true(1,i)-x_true(2,i)))/(m*l^2)-sin(x_true(1,i)-x_true(2,i))*(x_true(3,i)^2*cos(x_true(1,i)-x_true(2,i))+x_true(4,i)^2)+g/l*(2*sin(x_true(1,i))-sin(x_true(2,i))*cos(x_true(1,i)-x_true(2,i))))/(2-cos(x_true(1,i)-x_true(2,i))^2);...
         ((2*(u_true(2,i)+v_true(2,i))-(u_true(1,i)+v_true(1,i))*cos(x_true(1,i)-x_true(2,i)))/(m*l^2)+sin(x_true(1,i)-x_true(2,i))*(2*x_true(3,i)^2+x_true(4,i)^2*cos(x_true(1,i)-x_true(2,i)))+2*g/l*(sin(x_true(2,i))-sin(x_true(1,i))*cos(x_true(1,i)-x_true(2,i))))/(2-cos(x_true(1,i)-x_true(2,i))^2)]+...
-        [0;0; alpha* u_true(1,i);alpha* u_true(2,i)]*0.1*randn;
+        [0;0; alpha* u_true(1,i)^2;alpha* u_true(2,i)^2]*0.1*randn;
         cost_sam(k)=cost_sam(k)+dt*(x_true(:,i)'* Q * x_true(:,i) + u_true(:,i)' * Ru * u_true(:,i) - v_true(:,i)' * Rv * v_true(:,i));
     end
     cost_sam(k)=cost_sam(k)+x_true(:,N+1)'* Q * x_true(:,N+1);
-%     plot(time,x_true(1,:),time,x_true(2,:),time,x_true(3,:),time,x_true(4,:),'linewidth',2);
+    plot(time,x_true(1,:),time,x_true(2,:),time,x_true(3,:),time,x_true(4,:),'linewidth',2);
 end
 cost=mean(cost_sam)
 

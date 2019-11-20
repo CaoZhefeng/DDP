@@ -25,8 +25,8 @@ fv=[                                         0,                                 
            -1/(l^2*m*(cos(x(1) - x(2))^2 - 2)), cos(x(1) - x(2))/(l^2*m*(cos(x(1) - x(2))^2 - 2));...
  cos(x(1) - x(2))/(l^2*m*(cos(x(1) - x(2))^2 - 2)),           -2/(l^2*m*(cos(x(1) - x(2))^2 - 2))];
 
-F=[0;0;alpha*u(1);alpha*u(2)];
-F_u=[0, 0;0, 0;alpha, 0;0, alpha];
+F=[0;0;alpha*u(1)^2;alpha*u(2)^2];
+F_u=[0, 0;0, 0;alpha*2*u(1), 0;0, alpha*2*u(2)];
 F_v=zeros(4,2);
 
 Q_u=2*Ru*u+fu'*V_x+F_u'*V_xx*F*1;
