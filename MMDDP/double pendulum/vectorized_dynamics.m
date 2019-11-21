@@ -7,12 +7,17 @@
 
 % dxdt is n*d matrix n is the number of data d is the dimension of state
 % u v is both n*k k is the dimension of control
+% consider torque stochastic
 
-function dxdt=dynamics(x,u,v)
+function dxdt=duopend(x,u,v)
 
 m=1;
 l=0.5;
 g=9.81;
+n = size(x,1);
+
+u = 0.95*u+0.1*u.*rand(n,2);
+v = 0.95*v+0.1*v.*rand(n,2);
 
 dxdt(:,1)=x(:,3);
 dxdt(:,2)=x(:,4);
