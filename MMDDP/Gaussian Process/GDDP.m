@@ -1,4 +1,5 @@
 function GDDP
+profile on
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % numerical
 % double pendulum
@@ -21,7 +22,6 @@ m = 2;  % control dimenison
 dt=0.01; % interval
 gamma=0.3;
 
-lmd=0;
 
 % initialize control sequence
 time=0:dt:N*dt;
@@ -32,9 +32,10 @@ u_pp=spline(time_u, u);
 v=zeros(2,N);
 v_pp=spline(time_u, v);
 
-
-%% Gaussian Process regression
-[gprMd1,gprMd2,gprMd3,gprMd4]=gaussian_process;
+load initial.mat;
+x_norm = [x_norm;[pi,pi,0,0]];
+u_norm = [u_norm;[0,0]];
+save('nom_tra','x_norm','u_norm');
 
 
 %% Min-Max DDP
@@ -42,9 +43,12 @@ fprintf('\n=========== begin Min-Max DDP ===========\n');
 
 itr=1;
 while(1)
+    %% Gaussian Process regression
+    [gprMd3,gprMd4]=gaussian_process;
+
     %% Initial Trajectory 
     x0=[pi;pi;0;0];
-    [~,x] = ode45(@(t,x) dynamics(t,x,u_pp,v_pp,gprMd1,gprMd2,gprMd3,gprMd4), time, x0);
+    [~,x] = ode45(@(t,x) dynamics(t,x,u_pp,v_pp,gprMd3,gprMd4), time, x0);
     
     x_pp=spline(time, x');
     
@@ -57,8 +61,10 @@ while(1)
     time_back=N*dt:-dt:0;
 %     VN=[0;0;0;0;0;0];
     VN=2*[Q*x(end,:)';reshape(Q, 16, 1)];
-    [~,V] = ode45(@(t,V) odeback(t,V,u_pp,v_pp,x_pp,Q,Ru,Rv,gprMd1,gprMd2,gprMd3,gprMd4), time_back, VN);
+    [~,V] = ode45(@(t,V) odeback(t,V,u_pp,v_pp,x_pp,Q,Ru,Rv,gprMd3,gprMd4), time_back, VN);
     V_pp = spline(time, V(end:-1:1, :)');
+    
+    profile viewer
     
     V_x = V(end:-1:1, 1:4)';
     V_xx = zeros(4, 4, N+1);
@@ -68,13 +74,16 @@ while(1)
     
     %% Trajectory Update
     dx0=[0;0;0;0];
-    [~,dx] = ode45(@(t,dx) odeforw(t,dx,u_pp,v_pp,x_pp,Ru,Rv,V_pp,gprMd1,gprMd2,gprMd3,gprMd4), time, dx0);
+    [~,dx] = ode45(@(t,dx) odeforw(t,dx,u_pp,v_pp,x_pp,Ru,Rv,V_pp,gprMd3,gprMd4), time, dx0);
     
     %% Control Update
-    [u, v,du_max,dv_max,lu,Ku,lv,Kv] = du_update(dx, x, u, v, V_x, V_xx, Ru,Rv,gamma,N,gprMd1,gprMd2,gprMd3,gprMd4);
+    [u, v,du_max,dv_max,lu,Ku,lv,Kv] = du_update(dx, x, u, v, V_x, V_xx, Ru,Rv,gamma,N,gprMd3,gprMd4);
     u_pp=spline(time_u, u);
     v_pp=spline(time_u, v);
-
+    
+    x_norm=[x_norm;x(1:N,:)];
+    u_norm=[u_norm;u'];
+    save('nom_tra','x_norm','u_norm');
     %% Convergence Check
 %     if abs(x(end,1))+abs(x(end,2))< 1e-3
     if du_max+dv_max< 1e-3

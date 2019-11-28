@@ -4,7 +4,7 @@
 % theta_dot=theta_dot+dt*(sin(theta)-theta_dot+u+v)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function dxdt=dynamics(t,x,u_pp,v_pp,gprMd1,gprMd2,gprMd3,gprMd4)
+function dxdt=dynamics(t,x,u_pp,v_pp,gprMd3,gprMd4)
 dxdt=zeros(4,1);
 u = ppval(u_pp, t);
 v = ppval(v_pp, t);
@@ -12,8 +12,8 @@ m=1;
 l=0.5;
 g=9.81;
 
-dxdt(1)=predict(gprMd1,[x',u']);
-dxdt(2)=predict(gprMd2,[x',u']);
+dxdt(1)=x(3);
+dxdt(2)=x(4);
 dxdt(3)=predict(gprMd3,[x',u'])+v(1);
 dxdt(4)=predict(gprMd4,[x',u'])+v(2);
 

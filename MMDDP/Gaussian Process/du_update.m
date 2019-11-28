@@ -1,14 +1,16 @@
-function [unew, vnew,du_max,dv_max,lu,Ku,lv,Kv] = du_update(dx, X, u, v, V_x, V_xx, Ru,Rv,gamma,N,gprMd1,gprMd2,gprMd3,gprMd4)
+function [unew, vnew,du_max,dv_max,lu,Ku,lv,Kv] = du_update(dx, X, u, v, V_x, V_xx, Ru,Rv,gamma,N,gprMd3,gprMd4)
 unew=u*0;
 vnew=v*0;
 
 for i=1:N
     x=reshape(X(i,:),4,1);
-    dmudx(1,:) = grad_gaussian(x',u(:,i)',gprMd1);
-    dmudx(2,:) = grad_gaussian(x',u(:,i)',gprMd2);
+%     dmudx(1,:) = grad_gaussian(x',u(:,i)',gprMd1);
+%     dmudx(2,:) = grad_gaussian(x',u(:,i)',gprMd2);
     dmudx(3,:) = grad_gaussian(x',u(:,i)',gprMd3);
     dmudx(4,:) = grad_gaussian(x',u(:,i)',gprMd4);
-    for j=1:4
+    fu(1,:)=[0,0];
+    fu(2,:)=[0,0];
+    for j=3:4
         fu(j,:)=dmudx(j,5:6);
     end
     fv=[0,0;...

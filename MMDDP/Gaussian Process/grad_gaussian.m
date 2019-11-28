@@ -19,5 +19,5 @@ dmudx = grad_Mat*A;
 if strcmp(gprMd.BasisFunction,'Linear')
     dmudx = dmudx+gprMd.Beta(2:end);
 end
-t2=toc;
+t2=toc
 end
