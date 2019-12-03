@@ -1,12 +1,11 @@
 function dmudx = grad_gaussian(x,u,gprMd)
-tic;
 mu = predict(gprMd,[x,u]);
 
 A = gprMd.Alpha;
 n = gprMd.NumObservations;
-kernel_p = exp(gprMd.KernelInformation.KernelParameters);
+kernel_p = gprMd.KernelInformation.KernelParameters;
 % compute the Kernal Matrix
-Kernel_vector = exp(-0.5*(ones(n,1)*[x,u]-gprMd.X).^2*(1./kernel_p(1:end-1,1).^2))';
+Kernel_vector = kernel_p(end)^2*exp(-0.5*(ones(n,1)*[x,u]-gprMd.X).^2*(1./kernel_p(1:end-1,1).^2))';
 x = [x,u];
 
 % for i =1:size(x,2)
@@ -19,5 +18,6 @@ dmudx = grad_Mat*A;
 if strcmp(gprMd.BasisFunction,'Linear')
     dmudx = dmudx+gprMd.Beta(2:end);
 end
-t2=toc
+
+
 end

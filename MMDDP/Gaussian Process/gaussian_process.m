@@ -2,7 +2,6 @@ function [gprMd3,gprMd4]=gaussian_process
 %%
 % learn gaussian process for double pendulum
 load nom_tra.mat
-
 rng(10)
 number_Observation = size(x_norm,1);
 % X_doupend = [-pi+(2*pi)*rand(number_Observation,1),-pi+(2*pi)*rand(number_Observation,1),...
@@ -35,11 +34,11 @@ sigmaM0 = 0.8*ones(6,1);
 
 gprMd3 = fitrgp(X_doupend,dxdt_doupend(:,3),'Basis','constant','FitMethod','exact',...
 'PredictMethod','exact','KernelFunction','ardsquaredexponential',...
-'KernelParameters',[sigmaM0;sigma_noise_1],'Sigma',sigma_noise_3,'Standardize',1);
+'KernelParameters',[sigmaM0;sigma_noise_1],'Sigma',sigma_noise_3);
 
 gprMd4 = fitrgp(X_doupend,dxdt_doupend(:,4),'Basis','constant','FitMethod','exact',...
 'PredictMethod','exact','KernelFunction','ardsquaredexponential',...
-'KernelParameters',[sigmaM0;sigma_noise_1],'Sigma',sigma_noise_4,'Standardize',1);
+'KernelParameters',[sigmaM0;sigma_noise_1],'Sigma',sigma_noise_4);
 
 %% predict gradient
 
